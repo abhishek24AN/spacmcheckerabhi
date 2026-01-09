@@ -1,513 +1,425 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Secure-Guard — Professional Security Tools</title>
+<meta charset="UTF-8">
+<title>SECURE-AI Cyber Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
-  :root{
-    --bg-1:#05060b; --bg-2:#071227;
-    --glass: rgba(255,255,255,0.03);
-    --accent1:#5dd3ff; --accent2:#8a63ff;
-    --muted:#aeb8c6; --ok:#3dd17f; --warn:#ffb020; --danger:#ff6b6b;
-    --card-radius:14px; --maxw:1200px;
-    font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  }
+:root{
+  --bg:#060b16;
+  --panel:#0e1933;
+  --accent:#22e6a7;
+  --blue:#3aa9ff;
+  --danger:#ff4d4d;
+  --warn:#ffc857;
+  --text:#e6f0ff;
+  --muted:#8ea2c6;
+}
 
-  /* Cyber wallpaper (SVG grid + noise) as embedded data-URI; looks professional & techy */
-  html,body{height:100%;margin:0;background:
-    radial-gradient(1000px 500px at 10% 10%, rgba(138,99,255,0.07), transparent 6%),
-    radial-gradient(900px 500px at 90% 80%, rgba(93,211,255,0.04), transparent 8%),
-    linear-gradient(180deg,var(--bg-1),var(--bg-2));
-    color:#e7f2ff;
-    -webkit-font-smoothing:antialiased;
-  }
-  body::before{
-    content:"";
-    position:fixed;inset:0;z-index:0;
-    background-image:
-      url("data:image/svg+xml;utf8,<?xml version='1.0' encoding='UTF-8'?>\
-      <svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'>\
-      <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='%238a63ff' stop-opacity='0.06'/><stop offset='1' stop-color='%235dd3ff' stop-opacity='0.03'/></linearGradient></defs>\
-      <rect width='100%' height='100%' fill='none'/>\
-      <g stroke='%23ffffff' stroke-opacity='0.03' stroke-width='1'>\
-        <pattern id='p' width='60' height='60' patternUnits='userSpaceOnUse'>\
-           <path d='M60 0 L0 0 0 60' fill='none'/>\
-        </pattern>\
-        <rect width='100%' height='100%' fill='url(%23p)'/>\
-      </g>\
-      <g opacity='0.06' fill='url(%23g)'>\
-        <circle cx='120' cy='80' r='100'/><circle cx='680' cy='460' r='160'/></g></svg>");
-    background-repeat:repeat;
-    mix-blend-mode:overlay;
-    pointer-events:none;
-    opacity:0.9;
-    transform:translateZ(0);
-  }
+*{box-sizing:border-box}
 
-  .wrap{max-width:var(--maxw);margin:28px auto;padding:22px;position:relative;z-index:2;}
-  header{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
-  .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(8,12,24,0.6);}
-  .logo svg{width:36px;height:36px;filter:drop-shadow(0 14px 30px rgba(138,99,255,0.12));}
-  .brand h1{margin:0;font-size:20px} .brand p{margin:0;color:var(--muted);font-size:13px}
+body{
+  margin:0;
+  font-family:Segoe UI, Inter, Arial;
+  background:radial-gradient(circle at top,#13203a,#060b16);
+  color:var(--text);
+  overflow:hidden;
+}
 
-  nav{margin-left:auto;display:flex;gap:8px}
-  .pill{padding:8px 12px;border-radius:999px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);font-size:13px}
+.app{display:flex;height:100vh}
 
-  .hero{display:flex;gap:18px;align-items:center;margin-bottom:8px}
-  .hero .note{color:var(--muted);font-size:13px}
+/* SIDEBAR */
+.sidebar{
+  width:270px;
+  background:linear-gradient(180deg,#0e1933,#081126);
+  padding:18px;
+  overflow:auto;
+}
 
-  /* grid of tools */
-  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:18px}
-  @media(max-width:1000px){.grid{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:620px){.grid{grid-template-columns:1fr}}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
 
-  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:var(--card-radius);padding:14px;box-shadow:0 12px 34px rgba(2,6,23,0.55);border:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:10px;min-height:190px;transition:transform .25s ease,box-shadow .25s ease}
-  .card:hover{transform:translateY(-6px);box-shadow:0 22px 48px rgba(2,6,23,0.7)}
-  .card h3{margin:0;font-size:15px}
-  .hint{font-size:13px;color:var(--muted)}
+.logo{
+  width:36px;height:36px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#21f3b6,#3aa9ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  color:#001b2e;
+  animation:pulse 2s infinite;
+}
 
-  textarea,input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.05);padding:10px;border-radius:8px;color:inherit;font-size:14px;outline:none;width:100%}
-  input[type="file"]{color:var(--muted)}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 rgba(34,230,167,0.6)}
+  50%{box-shadow:0 0 15px rgba(34,230,167,0.9)}
+}
 
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#052033;border:none;cursor:pointer;font-weight:700;box-shadow:0 10px 26px rgba(7,12,20,0.5)}
-  .btn.secondary{background:transparent;color:var(--accent1);border:1px solid rgba(255,255,255,0.06);font-weight:600}
-  .btn.ghost{background:transparent;border:1px dashed rgba(255,255,255,0.04);color:var(--muted)}
-  .row{display:flex;gap:8px;align-items:center}
+.menu a{
+  display:block;
+  padding:10px 12px;
+  margin-bottom:6px;
+  border-radius:10px;
+  text-decoration:none;
+  color:var(--muted);
+  font-size:14px;
+  cursor:pointer;
+}
 
-  /* output area */
-  #outputBox{margin-top:22px;background:linear-gradient(180deg, rgba(0,0,0,0.36), rgba(255,255,255,0.01));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.03);display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-  #outputText{flex:1;white-space:pre-wrap;color:#e6f6ff;font-size:14px}
-  .output-actions{display:flex;gap:10px;align-items:center}
+.menu a.active,
+.menu a:hover{
+  background:linear-gradient(90deg,#1fe6a8,#2a7cff);
+  color:#041b2e;
+  font-weight:600;
+}
 
-  .badge{padding:6px 10px;border-radius:999px;font-size:13px;font-weight:700;color:#042033;background:linear-gradient(90deg,var(--accent1),var(--accent2))}
+/* TOOLBOX */
+.toolbox h4{
+  margin:12px 0 6px;
+  font-size:14px;
+  color:#9fb7ff;
+}
 
-  /* chatbox */
-  .chat-toggle{position:fixed;right:22px;bottom:22px;z-index:999;display:flex;flex-direction:column;gap:10px}
-  .chat-btn{width:56px;height:56px;border-radius:50%;background:linear-gradient(90deg,var(--accent2),var(--accent1));display:flex;align-items:center;justify-content:center;color:#022;border:none;cursor:pointer;box-shadow:0 12px 30px rgba(8,12,30,0.45)}
-  .chat-panel{position:fixed;right:22px;bottom:92px;width:340px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:10px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 20px 60px rgba(2,6,23,0.6);z-index:999}
-  .chat-header{display:flex;align-items:center;justify-content:space-between}
-  .chat-messages{max-height:300px;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:8px;margin-top:8px}
-  .msg{max-width:80%;padding:8px 10px;border-radius:8px;font-size:13px}
-  .msg.user{align-self:flex-end;background:linear-gradient(90deg,#0b527b,#0970a8);color:#fff}
-  .msg.bot{align-self:flex-start;background:rgba(255,255,255,0.03);color:#e9f5ff}
-  .chat-input{display:flex;gap:8px;margin-top:8px}
-  .chat-input input{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);background:transparent;color:inherit}
+.toolbox textarea,
+.toolbox input{
+  width:100%;
+  background:#081126;
+  border:1px solid rgba(255,255,255,0.08);
+  color:white;
+  border-radius:8px;
+  padding:8px;
+  margin-bottom:6px;
+  font-size:13px;
+}
 
-  /* modal for complaint */
-  .modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;z-index:1000}
-  .modal{width:720px;max-width:94%;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:16px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
-  .modal h4{margin:0}
-  .form-row{display:flex;gap:10px}
-  .form-row input, .form-row textarea{flex:1}
+.toolbox button{
+  width:100%;
+  padding:8px;
+  border:none;
+  border-radius:8px;
+  background:linear-gradient(90deg,#1fe6a8,#2a7cff);
+  font-weight:700;
+  cursor:pointer;
+  margin-bottom:12px;
+}
 
-  /* small responsive tweaks */
-  @media(max-width:480px){
-    .chat-panel{right:12px;left:12px;width:auto}
-    .grid{gap:12px}
-  }
+/* MAIN */
+.main{
+  flex:1;
+  padding:22px;
+  overflow:auto;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:14px;
+}
+
+.status{
+  padding:8px 14px;
+  border-radius:20px;
+  background:rgba(34,230,167,0.15);
+  color:var(--accent);
+  font-weight:600;
+}
+
+.section{display:none}
+.section.active{display:block}
+
+/* CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.card{
+  background:linear-gradient(180deg,#0f1a32,#0b1427);
+  border-radius:16px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,0.05);
+  position:relative;
+  overflow:hidden;
+}
+
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(120deg,transparent,rgba(58,169,255,0.2),transparent);
+  animation:scan 4s infinite;
+}
+
+@keyframes scan{
+  from{transform:translateX(-100%)}
+  to{transform:translateX(100%)}
+}
+
+.big{font-size:30px;font-weight:800}
+.green{color:var(--accent)}
+.red{color:var(--danger)}
+.yellow{color:var(--warn)}
+
+.panel{
+  background:linear-gradient(180deg,#0f1a32,#0b1427);
+  border-radius:16px;
+  padding:16px;
+  border:1px solid rgba(255,255,255,0.05);
+  margin-bottom:16px;
+}
+
+.graph{
+  height:180px;
+  border-radius:12px;
+  background:
+    linear-gradient(180deg,transparent,rgba(58,169,255,0.2)),
+    repeating-linear-gradient(
+      to right,
+      rgba(255,255,255,0.05) 0,
+      rgba(255,255,255,0.05) 1px,
+      transparent 1px,
+      transparent 40px
+    );
+}
+
+.feed p{font-size:13px;margin:8px 0;color:var(--muted)}
+.feed span{color:var(--danger);font-weight:600}
+
+a.gov{
+  color:#7dc4ff;
+  font-weight:600;
+  text-decoration:none;
+}
 </style>
 </head>
+
 <body>
-  <div class="wrap" role="main">
-    <header>
-      <div class="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 9.7-8 10-4.5-.3-8-5-8-10V6l8-4z" fill="white" opacity="0.12"/><path d="M12 3.2l6 3.4v4.4c0 4.1-2.8 7.8-6 8-3.2-.2-6-3.9-6-8V6.6L12 3.2z" fill="white"/></svg>
-      </div>
-      <div class="brand">
-        <h1>Secure-Guard</h1>
-        <p>Client-side security checks • Privacy-first demo</p>
-      </div>
 
-      <nav aria-label="meta">
-        <div class="pill">v1.3</div>
-        <div class="pill">Offline demo</div>
-      </nav>
-    </header>
+<div class="app">
 
-    <div class="hero">
-      <div class="note">Pro tip: run suspicious attachments in an isolated environment. Use the chat helper for guidance on next steps.</div>
-      <div style="margin-left:auto"><button class="btn secondary" id="openComplain">File a Complaint / FIR</button></div>
-    </div>
-
-    <!-- tools grid -->
-    <section class="grid" aria-label="tools">
-      <!-- Email -->
-      <div class="card" id="emailCard">
-        <h3>Email Spam Analyzer</h3>
-        <div class="hint">Paste the full email content (headers optional). We run heuristics and give tips.</div>
-        <textarea id="emailInput" rows="5" placeholder="Paste email text here..."></textarea>
-        <div class="row" style="margin-top:auto">
-          <button class="btn" id="analyzeEmailBtn">Analyze Email</button>
-          <button class="btn secondary" id="clearEmail">Clear</button>
-        </div>
-      </div>
-
-      <!-- URL -->
-      <div class="card" id="urlCard">
-        <h3>URL Safety Checker</h3>
-        <div class="hint">Enter a suspicious link. The checker flags obvious risky patterns and TLDs.</div>
-        <input id="urlInput" type="text" placeholder="https://example.com">
-        <div class="row" style="margin-top:auto">
-          <button class="btn" id="checkUrlBtn">Check URL</button>
-          <button class="btn ghost" id="exampleUrl">Example</button>
-        </div>
-      </div>
-
-      <!-- PDF -->
-      <div class="card" id="pdfCard">
-        <h3>PDF Inspector</h3>
-        <div class="hint">Select a PDF to view file metadata and get safe-handling tips.</div>
-        <input id="pdfInput" type="file" accept="application/pdf">
-        <div class="row" style="margin-top:auto">
-          <button class="btn" id="analyzePdfBtn">Analyze PDF</button>
-          <button class="btn secondary" id="clearPdf">Clear</button>
-        </div>
-      </div>
-
-      <!-- Image -->
-      <div class="card" id="imgCard">
-        <h3>Image Verifier</h3>
-        <div class="hint">Upload an image to check for EXIF metadata and basic file details.</div>
-        <input id="imageInput" type="file" accept="image/*">
-        <div class="row" style="margin-top:auto">
-          <button class="btn" id="verifyImgBtn">Verify Image</button>
-          <button class="btn ghost" id="previewImgBtn">Preview</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- output -->
-    <div id="outputBox" aria-live="polite">
-      <div id="outputText">Results will appear here. Try the tools above — each result includes quick tips and suggested next steps.</div>
-      <div class="output-actions">
-        <button class="btn secondary" id="copyOutput">Copy</button>
-        <button class="btn ghost" id="downloadOutput">Download</button>
-        <div style="width:8px"></div>
-        <div class="badge" id="statusBadge">Ready</div>
-      </div>
-    </div>
-
-    <footer style="margin-top:18px;color:var(--muted);font-size:13px">© Secure-Guard — demo only. For serious incidents contact local authorities or a professional SOC.</footer>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="logo">SG</div>
+    <strong>SECURE-AI</strong>
   </div>
 
-  <!-- complaint modal -->
-  <div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="modal" role="document">
-      <h4>File Complaint / FIR (draft)</h4>
-      <p class="hint">Fill the details below. This creates a FIR draft you can download and send to authorities. We do not send it anywhere.</p>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
-        <input id="complainName" placeholder="Your name" />
-        <input id="complainEmail" placeholder="Your email or contact" />
-        <input id="complainAgainst" placeholder="Accused (email / URL / phone)" />
-        <textarea id="complainDetails" rows="6" placeholder="Describe the incident (time, what happened, attachments)."></textarea>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
-          <button class="btn secondary" id="cancelComplain">Cancel</button>
-          <button class="btn" id="submitComplain">Create FIR Draft</button>
-        </div>
-      </div>
+  <div class="menu">
+    <a class="active" onclick="showSection('overview',this)">Overview</a>
+    <a onclick="showSection('map',this)">Threat Map</a>
+    <a onclick="showSection('logs',this)">AI Logs</a>
+    <a onclick="showSection('victim',this)">Victim Help</a>
+    <a onclick="showSection('settings',this)">Settings</a>
+  </div>
+
+  <div class="toolbox">
+    <h4>Email Scam Checker</h4>
+    <textarea id="emailInput" placeholder="Paste email text"></textarea>
+    <button onclick="checkEmail()">Analyze Email</button>
+
+    <h4>Link Scam Checker</h4>
+    <input id="linkInput" placeholder="https://example.com">
+    <button onclick="checkLink()">Check Link</button>
+
+    <h4>PDF Inspector</h4>
+    <input id="pdfInput" type="file">
+    <button onclick="checkPDF()">Inspect PDF</button>
+
+    <h4>Image Checker</h4>
+    <input id="imageInput" type="file">
+    <button onclick="checkImage()">Verify Image</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<div class="topbar">
+  <h2>Dashboard</h2>
+  <div class="status">AI ACTIVE</div>
+</div>
+
+<!-- OVERVIEW -->
+<div id="overview" class="section active">
+
+  <div class="cards">
+    <div class="card">
+      <h4>Risk Score</h4>
+      <div class="big green" id="risk">12%</div>
+    </div>
+    <div class="card">
+      <h4>Active Threats</h4>
+      <div class="big red" id="threats">3</div>
+    </div>
+    <div class="card">
+      <h4>AI Prediction</h4>
+      <div class="big yellow" id="prediction">Normal</div>
     </div>
   </div>
 
-  <!-- chatbox -->
-  <div class="chat-toggle" aria-hidden="false">
-    <button class="chat-btn" id="openChat" title="Open help chat">AI</button>
+  <div class="panel">
+    <h4>Security Health</h4>
+    <p>Overall Protection Level: <strong class="green">88% (Good)</strong></p>
+    <p>↓ Risk increased due to phishing attempts</p>
   </div>
 
-  <div class="chat-panel" id="chatPanel" style="display:none" role="dialog" aria-label="AI helper">
-    <div class="chat-header">
-      <strong>Secure-Guard Assistant</strong>
-      <button class="btn ghost" id="closeChat" style="font-size:12px;padding:6px">Close</button>
-    </div>
-    <div class="chat-messages" id="chatMessages" aria-live="polite">
-      <div class="msg bot">Hello — I can give guidance on suspicious emails, safe handling of files, and reporting steps. Ask me anything.</div>
-    </div>
-    <div class="chat-input">
-      <input id="chatInput" placeholder="e.g., How do I report phishing?">
-      <button class="btn" id="sendChat">Ask</button>
-    </div>
+  <div class="panel">
+    <h4>Top Threats Today</h4>
+    <p>• Phishing Emails – 42%</p>
+    <p>• Malicious Links – 31%</p>
+    <p>• Fake Job Offers – 18%</p>
+    <p>• Malware PDFs – 9%</p>
   </div>
+
+  <div class="panel">
+    <h4>User Impact Summary</h4>
+    <p>Users Protected: 124</p>
+    <p>Potential Loss Prevented: ₹3,45,000</p>
+    <p>Average Response Time: 2.4 seconds</p>
+  </div>
+</div>
+
+<!-- THREAT MAP -->
+<div id="map" class="section">
+  <div class="panel" style="height:300px">
+    Global Threat Map (Demo)<br><br>
+    • India – Banking Phishing<br>
+    • USA – Bot Activity<br>
+    • Singapore – Normal
+  </div>
+</div>
+
+<!-- LOGS -->
+<div id="logs" class="section">
+  <div class="panel feed">
+    <p><span>[HIGH]</span> Phishing email blocked</p>
+    <p><span>[MED]</span> Suspicious URL detected</p>
+    <p><span>[LOW]</span> New device login</p>
+  </div>
+</div>
+
+<!-- VICTIM HELP -->
+<div id="victim" class="section">
+  <div class="panel">
+    <h4>Victim Help / Response Center</h4>
+    <p>If you are a victim of cyber fraud:</p>
+    <p>1. Do not share OTP or passwords</p>
+    <p>2. Preserve emails, screenshots, logs</p>
+    <p>3. Call Cyber Crime Helpline <strong>1930</strong></p>
+    <p>4. File complaint on official portal</p>
+
+    <a class="gov" href="https://cybercrime.gov.in" target="_blank">
+      ➜ National Cyber Crime Reporting Portal
+    </a>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="settings" class="section">
+  <div class="panel">
+    <p>✔ Enable Real-Time Monitoring</p>
+    <p>✔ Auto Incident Logging</p>
+    <p>✔ Government Reporting Integration</p>
+    <p>✔ Email & SMS Alerts</p>
+  </div>
+</div>
+
+</main>
+</div>
 
 <script>
-  /* utilities */
-  const $ = id => document.getElementById(id);
-  const humanSize = b => b < 1024 ? b + ' B' : (b/1024).toFixed(1) + ' KB';
-  function setOutput(text, status='Ready') {
-    $('outputText').innerText = text;
-    const sb = $('statusBadge');
-    sb.innerText = status;
-    if (status.toLowerCase().includes('safe')) sb.style.background = 'linear-gradient(90deg,var(--bg-1),var(--accent1))';
-    else if (status.toLowerCase().includes('warn')||status.toLowerCase().includes('risk')) sb.style.background = 'linear-gradient(90deg,var(--warn),#ffd08a)';
-    else if (status.toLowerCase().includes('error')) sb.style.background = 'linear-gradient(90deg,var(--danger),#ff9aa2)';
-    else sb.style.background = 'linear-gradient(90deg,var(--accent1),var(--accent2))';
+let currentRisk = 12;
+
+function showSection(id,el){
+  document.querySelectorAll('.section')
+    .forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.menu a')
+    .forEach(a=>a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function updateDisplay(){
+  document.getElementById('risk').innerText = currentRisk + '%';
+  
+  if(currentRisk < 30) {
+    document.getElementById('risk').className = 'big green';
+    document.getElementById('prediction').innerText = 'Safe';
+    document.getElementById('threats').innerText = '0';
+  } else if(currentRisk < 60) {
+    document.getElementById('risk').className = 'big yellow';
+    document.getElementById('prediction').innerText = 'Medium Risk';
+    document.getElementById('threats').innerText = '2';
+  } else {
+    document.getElementById('risk').className = 'big red';
+    document.getElementById('prediction').innerText = 'High Risk';
+    document.getElementById('threats').innerText = '5';
   }
+}
 
-  /* copy & download */
-  $('copyOutput').addEventListener('click', async ()=>{
-    try { await navigator.clipboard.writeText($('outputText').innerText); setOutput('Copied to clipboard.','Copied'); }
-    catch(e){ setOutput('Copy failed.','Error'); }
-  });
-  $('downloadOutput').addEventListener('click', ()=>{
-    const data = $('outputText').innerText;
-    const blob = new Blob([data], {type:'text/plain;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'secure-guard-result.txt'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    setOutput('Downloaded results.','Downloaded');
-  });
-
-  /********* EMAIL ANALYSIS (richer) *********/
-  $('analyzeEmailBtn').addEventListener('click', ()=>{
-    const text = $('emailInput').value.trim();
-    if (!text) return setOutput('Please paste email content to analyze.','Error');
-
-    const checks = [
-      {name:'Urgent/Pressure', words:['urgent','asap','immediately','act now','verify now']},
-      {name:'Money/Finance', words:['bank','transfer','payment','invoice','lottery','prize']},
-      {name:'Credential Phish', words:['login','password','credentials','confirm your account','verify your account']},
-      {name:'Generic Salutation', words:['dear customer','valued customer','sir/madam','hello user']},
-      {name:'Attachment prompt', words:['see attached','open attachment','download file','invoice attached']},
-    ];
-
-    let findings = [];
-    for (const c of checks){
-      for (const w of c.words){
-        if (text.toLowerCase().includes(w)) { findings.push(`${c.name}: matched "${w}"`); break; }
-      }
-    }
-
-    const urls = (text.match(/https?:\/\/[^\s)]+/gi) || []);
-    if (urls.length) findings.push(`Found ${urls.length} URL(s). Example: ${urls[0]}`);
-
-    // look for suspicious sender lines (From:)
-    const fromMatch = text.match(/^From:\s*(.+)$/mi);
-    let sender = fromMatch ? fromMatch[1].trim() : 'Not available';
-    if (sender !== 'Not available' && !sender.includes('@')) sender += ' (no clear address)';
-
-    // compose tip actions
-    let tips = [];
-    if (findings.length) {
-      tips.push('Do not click links or open attachments until verified.');
-      tips.push('Hover links to inspect destination. If sender looks odd, verify via a separate channel.');
-      tips.push('Report the email to your IT/security team and to the service provider if it impersonates a brand.');
-    } else {
-      tips.push('No common indicators found — still exercise caution: confirm sender, avoid unexpected attachments.');
-    }
-
-    // Provide suggested next steps (report/capture)
-    const out = [
-      `Email analysis — quick summary`,
-      `-----------------------------`,
-      `Sender: ${sender}`,
-      `Risk signals: ${findings.length ? findings.length : 0}`,
-      ``,
-      `Findings:`,
-      findings.length ? findings.map((f,i)=>`${i+1}. ${f}`).join('\n') : 'No common spam indicators detected.',
-      ``,
-      `Suggested actions:`,
-      tips.map((t,i)=>`${i+1}. ${t}`).join('\n'),
-      ``,
-      `Quick actions:`,
-      `• Use 'File a Complaint' to create a FIR draft.\n• Use the AI Assistant (bottom-right) for specific wording to report this.\n`
-    ].join('\n');
-
-    const severity = findings.length >= 3 ? 'High risk' : findings.length === 0 ? 'Likely safe' : 'Suspicious';
-    setOutput(out, severity);
-  });
-
-  $('clearEmail').addEventListener('click', ()=>{ $('emailInput').value=''; setOutput('Email cleared.','Ready'); });
-
-  /********* URL CHECKER (richer) *********/
-  $('checkUrlBtn').addEventListener('click', ()=>{
-    const raw = $('urlInput').value.trim();
-    if (!raw) return setOutput('Enter a URL to check.','Error');
-    let url;
-    try { url = new URL(raw.startsWith('http') ? raw : 'https://' + raw); }
-    catch(e){ return setOutput('Invalid URL format.','Error'); }
-    const host = url.hostname.toLowerCase();
-
-    const suspiciousTLDs = ['.xyz','.top','.pw','.click','.tk','.cn'];
-    const suspiciousWords = ['login','secure','update','verify','account','confirm','bank','payment'];
-
-    const matches = suspiciousTLDs.filter(t=>host.endsWith(t)).concat(suspiciousWords.filter(w=>host.includes(w) || url.href.includes(w)));
-    const out = [
-      `URL analysis for: ${url.href}`,
-      `Host: ${host}`,
-      `Matches: ${matches.length ? matches.join(', ') : 'None'}`,
-      ``,
-      `Tips:`,
-      matches.length ? '- Treat as risky. Do not visit directly. Use a sandbox or URL scanner.' : '- No obvious patterns. Still prefer manual verification before entering credentials.',
-      ``,
-      `Suggested next steps:`,
-      '- If this was sent in an email: report the message and do not click.',
-      '- For high-risk links: capture headers and file a complaint if you lost money or provided credentials.'
-    ].join('\n');
-
-    setOutput(out, matches.length ? 'Risk' : 'Safe');
-  });
-  $('exampleUrl').addEventListener('click', ()=>{ $('urlInput').value = 'https://example.com'; setOutput('Example URL provided.','Ready'); });
-
-  /********* PDF Inspector *********/
-  $('analyzePdfBtn').addEventListener('click', ()=>{
-    const f = $('pdfInput').files[0];
-    if (!f) return setOutput('Select a PDF file first.','Error');
-    if (f.type !== 'application/pdf') return setOutput('Selected file is not a PDF.','Error');
-
-    const info = [
-      `File name: ${f.name}`,
-      `Type: ${f.type}`,
-      `Size: ${humanSize(f.size)}`,
-      `Last modified: ${f.lastModified ? new Date(f.lastModified).toLocaleString() : 'Unknown'}`,
-    ].join('\n');
-
-    // heuristics by filename
-    const susWords = ['invoice','payment','receipt','transaction','bank'];
-    const matches = susWords.filter(s => f.name.toLowerCase().includes(s));
-    const recommended = matches.length ? [
-      '- Do not open on your main device. Use an isolated VM.',
-      '- Scan with an up-to-date antivirus and check embedded links before opening.',
-      '- If unexpected, contact sender by a known phone number or portal before trusting.'
-    ] : [
-      '- No filename concerns. Still scan attachments before opening.',
-      '- Save a copy and inspect in a sandbox if you suspect risk.'
-    ];
-
-    const out = [
-      'PDF Inspector — quick report',
-      '---------------------------',
-      info,
-      '',
-      'Heuristic filename check: ' + (matches.length ? 'suspicious words found ('+matches.join(', ')+')' : 'none'),
-      '',
-      'Tips:',
-      recommended.join('\n'),
-      '',
-      'Actions:',
-      '- Use the AI assistant for suggested report wording.',
-      '- Use "File a Complaint" to prepare evidence for authorities.'
-    ].join('\n');
-
-    setOutput(out, matches.length ? 'Warn' : 'Safe');
-  });
-  $('clearPdf').addEventListener('click', ()=>{ $('pdfInput').value=''; setOutput('PDF input cleared.','Ready'); });
-
-  /********* IMAGE VERIFY (EXIF detection) *********/
-  function containsExif(ab){
-    const bytes = new Uint8Array(ab);
-    const needle = [0x45,0x78,0x69,0x66]; // 'Exif'
-    for (let i=0;i+needle.length<bytes.length;i++){
-      let ok=true;
-      for (let j=0;j<needle.length;j++){ if (bytes[i+j] !== needle[j]) { ok=false; break; } }
-      if (ok) return true;
-    }
-    return false;
+function checkEmail(){
+  const text = document.getElementById('emailInput').value;
+  if(!text) {
+    alert('Please paste email text');
+    return;
   }
-  $('verifyImgBtn').addEventListener('click', ()=>{
-    const f = $('imageInput').files[0];
-    if (!f) return setOutput('Select an image file first.','Error');
-    const reader = new FileReader();
-    reader.onload = e => {
-      const hasExif = containsExif(e.target.result);
-      const info = [
-        `File name: ${f.name}`,
-        `Type: ${f.type || 'Unknown'}`,
-        `Size: ${humanSize(f.size)}`,
-        `Last modified: ${f.lastModified ? new Date(f.lastModified).toLocaleString() : 'Unknown'}`,
-        `EXIF: ${hasExif ? 'Present' : 'Not detected'}`
-      ].join('\n');
-      const tips = hasExif ? '- EXIF may include camera/time/GPS. Remove before sharing if you need privacy.' : '- No EXIF detected. Could be stripped or generated.';
-      setOutput(['Image verification','----------------',info,'','Tips:',tips].join('\n'), hasExif ? 'Safe' : 'Warn');
-    };
-    reader.onerror = ()=> setOutput('Unable to read file.','Error');
-    reader.readAsArrayBuffer(f);
-  });
-  $('previewImgBtn').addEventListener('click', ()=>{
-    const f = $('imageInput').files[0]; if (!f) return setOutput('Choose an image to preview.','Error');
-    const url = URL.createObjectURL(f); window.open(url,'_blank'); setOutput('Opened preview in a new tab.','Ready');
-  });
+  currentRisk = Math.min(100, currentRisk + 15);
+  updateDisplay();
+  alert('✓ Email analyzed. Risk increased by 15%');
+  document.getElementById('emailInput').value = '';
+}
 
-  /********* Complaint modal (create FIR draft) *********/
-  const modal = $('modalBackdrop');
-  $('openComplain').addEventListener('click', ()=>{ modal.style.display='flex'; modal.setAttribute('aria-hidden','false'); });
-  $('cancelComplain').addEventListener('click', ()=>{ modal.style.display='none'; modal.setAttribute('aria-hidden','true'); });
-  $('submitComplain').addEventListener('click', ()=>{
-    const name = $('complainName').value.trim(), contact = $('complainEmail').value.trim();
-    const accused = $('complainAgainst').value.trim(), details = $('complainDetails').value.trim();
-    if (!name || !contact || !accused || !details) return setOutput('Please complete all FIR fields before creating the draft.','Error');
-
-    // compose FIR content
-    const fir = [
-      `FIR Draft — Secure-Guard`,
-      `Date: ${new Date().toLocaleString()}`,
-      `Reporter: ${name}`,
-      `Contact: ${contact}`,
-      `Accused: ${accused}`,
-      '',
-      'Incident details:',
-      details,
-      '',
-      'Evidence: (attach relevant email headers, screenshots, files)',
-      '',
-      'I confirm the above statements are true to the best of my knowledge.',
-      '',
-      'Signature: ____________________'
-    ].join('\n');
-
-    // download FIR as text file
-    const blob = new Blob([fir], {type:'text/plain;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'FIR-draft.txt'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-
-    modal.style.display='none'; modal.setAttribute('aria-hidden','true');
-    setOutput('FIR draft created and downloaded. Provide the downloaded file to your local authority or attach to an email.','Downloaded');
-  });
-
-  /********* Simple AI chatbox (client-side canned assistant) *********/
-  $('openChat').addEventListener('click', ()=>{ $('chatPanel').style.display='block'; });
-  $('closeChat').addEventListener('click', ()=>{ $('chatPanel').style.display='none'; });
-
-  function postBot(text){
-    const wrap = $('chatMessages');
-    const div = document.createElement('div'); div.className='msg bot'; div.innerText = text;
-    wrap.appendChild(div); wrap.scrollTop = wrap.scrollHeight;
+function checkLink(){
+  const link = document.getElementById('linkInput').value;
+  if(!link) {
+    alert('Please enter a URL');
+    return;
   }
-  function postUser(text){
-    const wrap = $('chatMessages');
-    const div = document.createElement('div'); div.className='msg user'; div.innerText = text;
-    wrap.appendChild(div); wrap.scrollTop = wrap.scrollHeight;
+  currentRisk = Math.min(100, currentRisk + 20);
+  updateDisplay();
+  alert('⚠ Suspicious URL detected. Risk increased by 20%');
+  document.getElementById('linkInput').value = '';
+}
+
+function checkPDF(){
+  const file = document.getElementById('pdfInput').value;
+  if(!file) {
+    alert('Please select a PDF');
+    return;
   }
+  currentRisk = Math.min(100, currentRisk + 18);
+  updateDisplay();
+  alert('⚠ Malicious signature found. Risk increased by 18%');
+  document.getElementById('pdfInput').value = '';
+}
 
-  function aiReply(userText){
-    const t = userText.toLowerCase();
-    // a few canned intents
-    if (t.includes('phish') || t.includes('phishing') || t.includes('report')) {
-      return 'If you suspect phishing: 1) Do not click links or open attachments; 2) Capture the email (headers + body); 3) Report to your IT team and local authorities. I can help draft a report — say "draft report".';
-    }
-    if (t.includes('how to remove exif') || t.includes('remove exif')) {
-      return 'To remove EXIF metadata: use an image editor (save for web) or a metadata stripper tool. On Windows: right-click -> Properties -> Details -> Remove Properties and Personal Information.';
-    }
-    if (t.includes('open attachment') || t.includes('scan pdf')) {
-      return 'Never open untrusted attachments on your primary device. Use an isolated virtual machine or an online scanner that supports file uploads. If you provide the filename, I can suggest scanning steps.';
-    }
-    if (t.includes('draft') || t.includes('report wording') || t.includes('wording')) {
-      return 'Tell me the key facts (who, when, what, evidence). I can prepare a concise report you can copy into an email or the FIR draft.';
-    }
-    if (t.includes('how to report to police') || t.includes('file fir') ) {
-      return 'Contact your local police station or their cybercrime cell. Save all artifacts (emails, headers, screenshots, files) and bring them when filing a complaint. Use the "File a Complaint / FIR" button to create a draft.';
-    }
-    // fallback
-    return 'I can help with safe-handling tips, report wording, and next steps. Try asking "How to report phishing" or "Draft a report about fraud".';
+function checkImage(){
+  const file = document.getElementById('imageInput').value;
+  if(!file) {
+    alert('Please select an image');
+    return;
   }
+  currentRisk = Math.min(100, currentRisk + 12);
+  updateDisplay();
+  alert('✓ EXIF data detected. Risk increased by 12%');
+  document.getElementById('imageInput').value = '';
+}
 
-  $('sendChat').addEventListener('click', ()=>{ const input = $('chatInput'); const text = input.value.trim(); if (!text) return; postUser(text); input.value=''; setTimeout(()=>{ postBot(aiReply(text)); }, 500); });
-
-  // allow pressing Enter
-  $('chatInput').addEventListener('keydown', e=>{ if (e.key === 'Enter') { e.preventDefault(); $('sendChat').click(); } });
-
-  /********* small keyboard shortcuts, accessibility *********/
-  document.addEventListener('keydown', e=>{
-    if (e.ctrlKey && e.key === 'Enter'){ $('analyzeEmailBtn').click(); }
-  });
+// Initialize display on load
+window.onload = function() {
+  updateDisplay();
+};
 </script>
+
 </body>
 </html>
